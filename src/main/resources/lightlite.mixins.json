@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "io.github.radishsprouts.lightlite.mixin",
+  "compatibilityLevel": "${java}",
+  "client": [
+    "ClientChunkCacheMixin",
+    "ClientLevelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

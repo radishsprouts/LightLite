@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Lightweight mob-spawn overlay. Shows blocks where hostile mobs can spawn (red: always, yellow: at night) with minimal CPU and GPU cost.",
+  "authors": [
+    "radishsprouts"
+  ],
+  "contact": {
+    "sources": "https://github.com/radishsprouts/LightLite",
+    "issues": "https://github.com/radishsprouts/LightLite/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/lightlite/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "io.github.radishsprouts.lightlite.LightLite"
+    ],
+    "modmenu": [
+      "io.github.radishsprouts.lightlite.compat.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "lightlite.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "minecraft": "${minecraft}",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}

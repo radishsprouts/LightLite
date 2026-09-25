@@ -1,0 +1,23 @@
+{
+  "key.category.lightlite.main": "LightLite",
+  "key.lightlite.toggle": "湧き潰し表示のON/OFF",
+  "key.lightlite.mode": "タイル/X印の切り替え",
+  "lightlite.message.enabled": "LightLite: 表示ON",
+  "lightlite.message.disabled": "LightLite: 表示OFF",
+  "lightlite.message.mode": "LightLite: %s",
+  "lightlite.message.reloaded": "LightLite: 設定を再読み込みしました",
+  "lightlite.message.stats_reset": "LightLite: 計測値をリセットしました",
+  "lightlite.mode.tile": "タイル",
+  "lightlite.mode.cross": "X印",
+  "lightlite.backend.auto": "自動",
+  "lightlite.backend.retained": "GPU保持（最速）",
+  "lightlite.backend.immediate": "逐次描画（互換性重視）",
+  "lightlite.config.title": "LightLite 設定",
+  "lightlite.config.enabled": "表示",
+  "lightlite.config.mode": "表示方法",
+  "lightlite.config.horizontal_range": "水平範囲: %s",
+  "lightlite.config.vertical_range": "垂直範囲: %s",
+  "lightlite.config.only_when_holding_light": "明かりを持っている時だけ表示",
+  "lightlite.config.tick_budget": "1ティックの処理時間上限: %s",
+  "lightlite.config.backend": "描画方式"
+}

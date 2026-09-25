@@ -1,0 +1,23 @@
+{
+  "key.category.lightlite.main": "LightLite",
+  "key.lightlite.toggle": "Toggle spawn overlay",
+  "key.lightlite.mode": "Switch tiles / crosses",
+  "lightlite.message.enabled": "LightLite: overlay ON",
+  "lightlite.message.disabled": "LightLite: overlay OFF",
+  "lightlite.message.mode": "LightLite: %s",
+  "lightlite.message.reloaded": "LightLite: config reloaded",
+  "lightlite.message.stats_reset": "LightLite: stats reset",
+  "lightlite.mode.tile": "Tiles",
+  "lightlite.mode.cross": "Crosses",
+  "lightlite.backend.auto": "Auto",
+  "lightlite.backend.retained": "GPU retained (fastest)",
+  "lightlite.backend.immediate": "Immediate (compatible)",
+  "lightlite.config.title": "LightLite Settings",
+  "lightlite.config.enabled": "Overlay",
+  "lightlite.config.mode": "Display",
+  "lightlite.config.horizontal_range": "Horizontal range: %s",
+  "lightlite.config.vertical_range": "Vertical range: %s",
+  "lightlite.config.only_when_holding_light": "Only while holding a light",
+  "lightlite.config.tick_budget": "Scan budget per tick: %s",
+  "lightlite.config.backend": "Renderer"
+}
