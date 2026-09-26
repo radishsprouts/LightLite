@@ -9,6 +9,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
+//? if >=26.2 {
+/*import net.minecraft.world.entity.EntityTypes;
+*///?}
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -39,7 +42,11 @@ public final class SpawnScanner {
 
     /** Maximum sky darkening applied by vanilla at night. */
     private static final int MAX_SKY_DARKEN = 11;
+    //? if >=26.2 {
+    /*private static final EntityType<?> REFERENCE_MOB = EntityTypes.ZOMBIE;
+    *///?} else {
     private static final EntityType<?> REFERENCE_MOB = EntityType.ZOMBIE;
+    //?}
     private static final int[] EMPTY = new int[0];
 
     private static final byte UNKNOWN = 0;

@@ -35,7 +35,7 @@ dependencies {
     )
 
     // Optional integration; not bundled
-    modCompileOnly("com.terraformersmc:modmenu:${sc.properties["deps.modmenu"]}") { isTransitive = false }
+    modCompileOnly("com.terraformersmc:modmenu:${sc.properties.get<String>("deps.modmenu")}") { isTransitive = false }
 }
 
 loom {
