@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  # Manual release from the Actions tab: creates the tag on the chosen commit
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create and release, e.g. v0.1.0"
+        required: true
 
 permissions:
   contents: write
@@ -27,7 +33,9 @@ jobs:
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          target_commitish: ${{ github.sha }}
           files: build/libs/*/*.jar
           # 0.x releases have not been verified in-game yet
-          prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
+          prerelease: ${{ startsWith(inputs.tag || github.ref_name, 'v0.') }}
           generate_release_notes: true
