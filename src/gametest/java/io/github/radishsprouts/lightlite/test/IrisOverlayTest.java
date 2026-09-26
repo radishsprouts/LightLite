@@ -79,6 +79,15 @@ public class IrisOverlayTest implements FabricClientGameTest {
             if (!failures.isEmpty()) {
                 throw new AssertionError("overlay not visible with a shader pack: " + failures);
             }
+
+            // With Iris installed, the default must still pick the fast path
+            context.runOnClient(client -> {
+                LightLiteConfig.get().backend = LightLiteConfig.Backend.AUTO;
+                OverlayRenderer.get().resetBackend();
+            });
+            context.waitTicks(5);
+            String auto = context.computeOnClient(client -> OverlayRenderer.get().backendName());
+            if (!"retained".equals(auto)) throw new AssertionError("AUTO picked " + auto + " with Iris installed");
         }
     }
 
