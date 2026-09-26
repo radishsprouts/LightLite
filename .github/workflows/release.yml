@@ -39,3 +39,10 @@ jobs:
           # 0.x releases have not been verified in-game yet
           prerelease: ${{ startsWith(inputs.tag || github.ref_name, 'v0.') }}
           generate_release_notes: true
+
+  modrinth:
+    needs: release
+    uses: ./.github/workflows/modrinth.yml
+    with:
+      tag: ${{ inputs.tag || github.ref_name }}
+    secrets: inherit
