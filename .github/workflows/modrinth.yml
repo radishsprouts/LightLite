@@ -39,6 +39,9 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - uses: actions/checkout@v5
+        if: steps.check.outputs.enabled == 'true'
+
       - name: Download release jars
         if: steps.check.outputs.enabled == 'true'
         run: gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*.jar' --dir jars
@@ -55,8 +58,14 @@ jobs:
 
           case "$TAG" in v0.*) version_type=beta ;; *) version_type=release ;; esac
           release_url="https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
-          changelog=$(printf 'Changes / 変更点: %s\n\nSource / ソース: %s' \
-            "https://github.com/$GITHUB_REPOSITORY/blob/$TAG/CHANGELOG.md" "$release_url")
+          # The "## <version>" section of CHANGELOG.md, up to the next version heading
+          notes=$(awk -v v="${TAG#v}" '
+            /^## / { if (found) exit; if ($2 == v) { found = 1; next } }
+            found' CHANGELOG.md)
+          if [ -z "$(tr -d '[:space:]' <<< "$notes")" ]; then
+            echo "::warning::No section for ${TAG#v} in CHANGELOG.md; the changelog links to the release only"
+          fi
+          changelog=$(printf '%s\n\nGitHub release: %s' "$notes" "$release_url")
 
           shopt -s nullglob
           jars=(jars/*.jar)

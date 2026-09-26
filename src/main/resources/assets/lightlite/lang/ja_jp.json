@@ -20,5 +20,6 @@
   "lightlite.config.only_when_holding_light": "明かりを持っている時だけ表示",
   "lightlite.config.tick_budget": "1ティックの処理時間上限: %s",
   "lightlite.config.backend": "描画方式",
-  "lightlite.config.grid_distance": "格子表示の距離: %s"
+  "lightlite.config.grid_distance": "格子表示の距離: %s",
+  "modmenu.descriptionTranslation.lightlite": "軽量な湧き潰し確認MOD。敵モブが湧けるブロックを、CPU と GPU の負荷を抑えて表示します（赤: いつでも湧く、黄: 夜だけ湧く）。"
 }

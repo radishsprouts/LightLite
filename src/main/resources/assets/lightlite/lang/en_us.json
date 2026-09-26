@@ -20,5 +20,6 @@
   "lightlite.config.only_when_holding_light": "Only while holding a light",
   "lightlite.config.tick_budget": "Scan budget per tick: %s",
   "lightlite.config.backend": "Renderer",
-  "lightlite.config.grid_distance": "Grid detail distance: %s"
+  "lightlite.config.grid_distance": "Grid detail distance: %s",
+  "modmenu.descriptionTranslation.lightlite": "Lightweight mob-spawn overlay. Shows blocks where hostile mobs can spawn (red: always, yellow: at night) with minimal CPU and GPU cost."
 }
