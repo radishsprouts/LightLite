@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "lightlite-test",
+  "version": "1.0.0",
+  "name": "LightLite tests",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "io.github.radishsprouts.lightlite.test.LightLiteClientGameTest"
+    ]
+  },
+  "depends": {
+    "lightlite": "*"
+  }
+}

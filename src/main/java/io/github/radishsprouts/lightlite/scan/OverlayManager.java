@@ -63,6 +63,27 @@ public final class OverlayManager {
         return m != null ? m : EMPTY;
     }
 
+    /**
+     * Counts cached markers of {@code kind} (0 = any) inside a block box. Used by tests.
+     */
+    public synchronized int countMarkers(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, int kind) {
+        int count = 0;
+        for (Long2ObjectMap.Entry<int[]> e : sections.long2ObjectEntrySet()) {
+            long key = e.getLongKey();
+            int bx = SectionPos.sectionToBlockCoord(SectionPos.x(key));
+            int by = SectionPos.sectionToBlockCoord(SectionPos.y(key));
+            int bz = SectionPos.sectionToBlockCoord(SectionPos.z(key));
+            for (int m : e.getValue()) {
+                int x = bx + SpawnScanner.x(m);
+                int y = by + SpawnScanner.y(m);
+                int z = bz + SpawnScanner.z(m);
+                if (x < minX || x > maxX || y < minY || y > maxY || z < minZ || z > maxZ) continue;
+                if (kind == 0 || SpawnScanner.kind(m) == kind) count++;
+            }
+        }
+        return count;
+    }
+
     // ------------------------------------------------------------------ tick
 
     public synchronized void tick(Minecraft mc) {
