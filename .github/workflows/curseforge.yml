@@ -97,7 +97,7 @@ jobs:
             # lightlite-<mod version>+<minecraft version>.jar
             mc=$(basename "$jar" .jar)
             mc=${mc##*+}
-            minecraft[$mc]=$(version_id '^minecraft-' "$mc")
+            minecraft[$mc]=$(version_id '^minecraft(-|$)' "$mc")
             if [ -z "${minecraft[$mc]}" ]; then
               echo "::error::CurseForge has no Minecraft version called $mc. Known 26.x versions: $(jq -r '[.[] | select(.name | startswith("26.")) | .name] | unique | join(", ")' versions.json)"
               exit 1
