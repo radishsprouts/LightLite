@@ -1,0 +1,139 @@
+name: CurseForge
+
+# Uploads the jars of an existing GitHub release to CurseForge, one file per Minecraft
+# version. Called by release.yml after publishing, or run by hand for an older tag.
+# Needs the CURSEFORGE_TOKEN secret and the CURSEFORGE_PROJECT_ID variable; skips without them.
+# The upload API cannot list existing files, so running it twice for a tag uploads twice.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Released tag to upload, e.g. v0.1.0"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+      CURSEFORGE_PROJECT: ${{ vars.CURSEFORGE_PROJECT_ID }}
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      API: https://minecraft.curseforge.com/api
+      UA: radishsprouts/LightLite (GitHub Actions)
+    steps:
+      - name: Check settings
+        id: check
+        run: |
+          if [ -z "$CURSEFORGE_TOKEN" ] || [ -z "$CURSEFORGE_PROJECT" ]; then
+            echo "::notice::CurseForge upload skipped: set the CURSEFORGE_TOKEN secret and the CURSEFORGE_PROJECT_ID variable to enable it."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v5
+        if: steps.check.outputs.enabled == 'true'
+
+      - name: Download release jars
+        if: steps.check.outputs.enabled == 'true'
+        run: gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*.jar' --dir jars
+
+      - name: Upload to CurseForge
+        if: steps.check.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+          auth=(-H "User-Agent: $UA" -H "X-Api-Token: $CURSEFORGE_TOKEN")
+          curl -fsS "${auth[@]}" "$API/game/version-types" > version-types.json
+          curl -fsS "${auth[@]}" "$API/game/versions" > versions.json
+
+          # ID of the game version called $2 whose type slug matches the regex $1
+          version_id() {
+            jq -r --arg type "$1" --arg name "$2" --slurpfile types version-types.json '
+              ($types[0] | map(select(.slug | test($type))) | map(.id)) as $ids
+              | map(select(.gameVersionTypeID as $t | any($ids[]; . == $t)) | select(.name == $name))
+              | first | .id // empty' versions.json
+          }
+
+          fabric=$(version_id '^modloader$' Fabric)
+          client=$(version_id '^environment$' Client)
+          java=$(version_id '^java$' 'Java 25')
+          for pair in "Fabric:$fabric" "Client:$client" "Java 25:$java"; do
+            if [ -z "${pair#*:}" ]; then
+              echo "::error::CurseForge has no game version called ${pair%%:*}"
+              exit 1
+            fi
+          done
+
+          case "$TAG" in v0.*) release_type=beta ;; *) release_type=release ;; esac
+          release_url="https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
+          # The "## <version>" section of CHANGELOG.md, up to the next version heading
+          notes=$(awk -v v="${TAG#v}" '
+            /^## / { if (found) exit; if ($2 == v) { found = 1; next } }
+            found' CHANGELOG.md)
+          if [ -z "$(tr -d '[:space:]' <<< "$notes")" ]; then
+            echo "::warning::No section for ${TAG#v} in CHANGELOG.md; the changelog links to the release only"
+          fi
+          changelog=$(printf '%s\n\nGitHub release: %s' "$notes" "$release_url")
+
+          shopt -s nullglob
+          jars=(jars/*.jar)
+          if [ ${#jars[@]} -eq 0 ]; then
+            echo "::error::No jars attached to release $TAG"
+            exit 1
+          fi
+          # Resolve every Minecraft version before uploading anything, so a missing one
+          # cannot leave a partial upload behind (re-running would duplicate files)
+          declare -A minecraft
+          for jar in "${jars[@]}"; do
+            # lightlite-<mod version>+<minecraft version>.jar
+            mc=$(basename "$jar" .jar)
+            mc=${mc##*+}
+            minecraft[$mc]=$(version_id '^minecraft-' "$mc")
+            if [ -z "${minecraft[$mc]}" ]; then
+              echo "::error::CurseForge has no Minecraft version called $mc. Known 26.x versions: $(jq -r '[.[] | select(.name | startswith("26.")) | .name] | unique | join(", ")' versions.json)"
+              exit 1
+            fi
+          done
+
+          for jar in "${jars[@]}"; do
+            version=$(basename "$jar" .jar)
+            version=${version#lightlite-}
+            mc=${version##*+}
+            jq -n \
+              --arg version "$version" \
+              --arg type "$release_type" \
+              --arg changelog "$changelog" \
+              --argjson versions "[${minecraft[$mc]}, $fabric, $client, $java]" \
+              '{
+                displayName: "LightLite \($version)",
+                changelog: $changelog,
+                changelogType: "markdown",
+                gameVersions: $versions,
+                releaseType: $type,
+                relations: {
+                  projects: [
+                    {slug: "fabric-api", type: "requiredDependency"},
+                    {slug: "modmenu", type: "optionalDependency"}
+                  ]
+                }
+              }' > metadata.json
+            status=$(curl -sS -o response.json -w '%{http_code}' -X POST \
+              "$API/projects/$CURSEFORGE_PROJECT/upload-file" \
+              "${auth[@]}" \
+              -F "metadata=<metadata.json;type=application/json" \
+              -F "file=@$jar;type=application/java-archive")
+            if [ "$status" != 200 ]; then
+              echo "::error::CurseForge rejected $version (HTTP $status): $(cat response.json)"
+              exit 1
+            fi
+            echo "Uploaded $version as file $(jq -r .id response.json)"
+          done

@@ -1,4 +1,4 @@
-# Publishing on Modrinth / Modrinth への公開
+# Publishing on CurseForge / CurseForge への公開
 
 [日本語は下にあります](#日本語)
 
@@ -6,41 +6,41 @@
 
 ### Steps
 
-1. Create the project on Modrinth, using the fields and text in "Project fields" below. Do not set an icon.
-2. On Modrinth, go to Settings → Personal access tokens and create a token with only the `Create versions` scope.
-3. In the GitHub repository, go to Settings → Secrets and variables → Actions and add two entries:
-   - **Secrets** tab: `MODRINTH_TOKEN`, set to the token from step 2. Do not paste it into a chat or anywhere else.
-   - **Variables** tab: `MODRINTH_PROJECT_ID`, set to the project ID or slug (for example `lightlite`).
-4. To upload the already released v0.1.0, go to Actions → **Modrinth** → Run workflow and enter `v0.1.0`.
-   - Future releases are uploaded to Modrinth automatically at the end of the Release workflow.
-   - If either of the two settings is missing, the Modrinth upload is skipped. The workflow does not fail.
-5. Once all three versions (26.1.2, 26.2, 26.3) are uploaded, submit the project for review on Modrinth.
+1. Read CurseForge's rules for authors, the [Moderation Policies](https://support.curseforge.com/support/solutions/articles/9000197279-moderation-policies) and the [Mod Authors Terms](https://legal.overwolf.com/docs/curseforge/mod-authors-terms/), and check what they say about AI-generated content.
+2. Create the project on CurseForge (Minecraft → Mods), using the fields and text in "Project fields" below.
+3. Note the numeric **Project ID** shown on the project page.
+4. Create an API token for uploads. It is under API Tokens in your CurseForge account settings (historically https://legacy.curseforge.com/account/api-tokens).
+5. In the GitHub repository, go to Settings → Secrets and variables → Actions and add two entries:
+   - **Secrets** tab: `CURSEFORGE_TOKEN`, set to the token from step 4. Do not paste it into a chat or anywhere else.
+   - **Variables** tab: `CURSEFORGE_PROJECT_ID`, set to the Project ID from step 3.
+6. To upload the already released v0.1.0, go to Actions → **CurseForge** → Run workflow and enter `v0.1.0`.
+   - Future releases are uploaded to CurseForge automatically at the end of the Release workflow.
+   - If either of the two settings is missing, the CurseForge upload is skipped. The workflow does not fail.
+   - The upload API cannot list files that are already on CurseForge. Running the workflow twice for the same tag uploads the files twice.
+7. New projects and files are reviewed by CurseForge before they become public.
 
 ### What the workflow uploads
 
-- One Modrinth version per Minecraft version: `0.1.0+26.1.2`, `0.1.0+26.2` and `0.1.0+26.3`. The files are the jars attached to the GitHub release.
-- Loader: Fabric.
-- Release channel: `beta` for `v0.x` tags, `release` otherwise.
-- Dependencies: Fabric API (required) and Mod Menu (optional).
+- One file per Minecraft version: `LightLite 0.1.0+26.1.2`, `LightLite 0.1.0+26.2` and `LightLite 0.1.0+26.3`. The files are the jars attached to the GitHub release.
+- Game versions of each file: its Minecraft version, Fabric, Client and Java 25. Their CurseForge IDs are looked up when the workflow runs.
+- Release type: `beta` for `v0.x` tags, `release` otherwise.
+- Relations: Fabric API (`fabric-api`, required dependency) and Mod Menu (`modmenu`, optional dependency).
 - Changelog: the section for that version in `CHANGELOG.md` (English and Japanese), followed by a link to the GitHub release.
-- A version that is already on Modrinth is skipped, so running the workflow again does not create duplicates.
 
 ### Project fields
 
 | Field | Value |
 |---|---|
-| Project type | Mod |
+| Game / class | Minecraft / Mods |
 | Name | `LightLite` |
-| URL (slug) | `lightlite` |
-| Visibility | Public |
-| Categories | `utility` |
-| Loaders | Fabric (set automatically by the uploaded versions) |
-| Client side | Required |
-| Server side | Unsupported |
-| License | MIT |
-| Source code | `https://github.com/radishsprouts/LightLite` |
-| Issue tracker | `https://github.com/radishsprouts/LightLite/issues` |
-| Icon | None |
+| Summary | See below |
+| Main category | Utility & QoL |
+| Additional category | Map and Information |
+| License | MIT License |
+| Source | `https://github.com/radishsprouts/LightLite` |
+| Issues | `https://github.com/radishsprouts/LightLite/issues` |
+| Logo | None |
+| Description | See "Description text" at the end of this file |
 
 #### Summary
 
@@ -52,7 +52,7 @@ Lightweight mob-spawn overlay: marks blocks where hostile mobs can spawn (red: a
 
 #### Description
 
-The Description is also a single field. Paste the whole block in "Description text" at the end of this file. It contains the full English text followed by the full Japanese text.
+The Description is also a single field. Choose Markdown as the format and paste the whole block in "Description text" at the end of this file. It contains the full English text followed by the full Japanese text.
 
 ---
 
@@ -60,41 +60,41 @@ The Description is also a single field. Paste the whole block in "Description te
 
 ### 手順
 
-1. Modrinth でプロジェクトを作成します。下の「プロジェクトの入力内容」の項目と文章を使います。アイコンは設定しません。
-2. Modrinth の Settings → Personal access tokens で、`Create versions` の権限だけを持つトークンを作ります。
-3. GitHub リポジトリの Settings → Secrets and variables → Actions で、次の2つを登録します。
-   - **Secrets** タブ: `MODRINTH_TOKEN` に手順2のトークンを入れます。チャットなどには貼らないでください。
-   - **Variables** タブ: `MODRINTH_PROJECT_ID` にプロジェクトの ID またはスラッグ（例: `lightlite`）を入れます。
-4. 公開済みの v0.1.0 を上げるときは、Actions → **Modrinth** → Run workflow で `v0.1.0` を指定します。
-   - 以後のリリースでは、Release ワークフローの最後に自動で Modrinth へ上がります。
-   - 2つの設定のどちらかがなければ、Modrinth への公開は飛ばされます。ワークフローは失敗しません。
-5. 3つのバージョン（26.1.2 / 26.2 / 26.3）がそろったら、Modrinth でプロジェクトを審査に提出します。
+1. CurseForge の作者向けの規約（[Moderation Policies](https://support.curseforge.com/support/solutions/articles/9000197279-moderation-policies) と [Mod Authors Terms](https://legal.overwolf.com/docs/curseforge/mod-authors-terms/)）を読み、AI で生成した内容についての記述を確認します。
+2. CurseForge でプロジェクトを作成します（Minecraft → Mods）。下の「プロジェクトの入力内容」の項目と文章を使います。
+3. プロジェクトのページに表示される数字の **Project ID** を控えます。
+4. アップロード用の API トークンを作ります。CurseForge のアカウント設定の API Tokens にあります（以前の場所は https://legacy.curseforge.com/account/api-tokens ）。
+5. GitHub リポジトリの Settings → Secrets and variables → Actions で、次の2つを登録します。
+   - **Secrets** タブ: `CURSEFORGE_TOKEN` に手順4のトークンを入れます。チャットなどには貼らないでください。
+   - **Variables** タブ: `CURSEFORGE_PROJECT_ID` に手順3の Project ID を入れます。
+6. 公開済みの v0.1.0 を上げるときは、Actions → **CurseForge** → Run workflow で `v0.1.0` を指定します。
+   - 以後のリリースでは、Release ワークフローの最後に自動で CurseForge へ上がります。
+   - 2つの設定のどちらかがなければ、CurseForge への公開は飛ばされます。ワークフローは失敗しません。
+   - アップロード用の API では、CurseForge にすでにあるファイルの一覧を取れません。同じタグで2回実行すると、ファイルが2回上がります。
+7. 新しいプロジェクトとファイルは、CurseForge の審査を経てから公開されます。
 
 ### ワークフローがアップロードする内容
 
-- Minecraft のバージョンごとに、Modrinth のバージョンを1つずつ作ります: `0.1.0+26.1.2`、`0.1.0+26.2`、`0.1.0+26.3`。ファイルは GitHub のリリースに添付された jar です。
-- ローダー: Fabric。
+- Minecraft のバージョンごとに1ファイル: `LightLite 0.1.0+26.1.2`、`LightLite 0.1.0+26.2`、`LightLite 0.1.0+26.3`。ファイルは GitHub のリリースに添付された jar です。
+- 各ファイルのゲームバージョン: その Minecraft のバージョン、Fabric、Client、Java 25。CurseForge 上の ID は、ワークフローの実行時に調べます。
 - リリースの種類: `v0.x` のタグは `beta`、それ以外は `release`。
-- 依存: Fabric API（必須）、Mod Menu（任意）。
+- 関連プロジェクト: Fabric API（`fabric-api`、必須の依存）、Mod Menu（`modmenu`、任意の依存）。
 - 変更履歴: `CHANGELOG.md` のそのバージョンの節（英語と日本語）と、GitHub のリリースへのリンク。
-- Modrinth に同じバージョンがあれば飛ばすので、ワークフローを再実行しても重複しません。
 
 ### プロジェクトの入力内容
 
 | 項目 | 値 |
 |---|---|
-| Project type | Mod |
-| Name | `LightLite` |
-| URL (slug) | `lightlite` |
-| Visibility | Public |
-| Categories | `utility` |
-| Loaders | Fabric（バージョンのアップロード時に自動で設定されます） |
-| Client side | Required |
-| Server side | Unsupported |
-| License | MIT |
-| Source code | `https://github.com/radishsprouts/LightLite` |
-| Issue tracker | `https://github.com/radishsprouts/LightLite/issues` |
-| Icon | なし |
+| ゲーム / 種類 | Minecraft / Mods |
+| 名前 | `LightLite` |
+| Summary | 下記を参照 |
+| メインカテゴリ | Utility & QoL |
+| 追加カテゴリ | Map and Information |
+| ライセンス | MIT License |
+| ソース | `https://github.com/radishsprouts/LightLite` |
+| Issues | `https://github.com/radishsprouts/LightLite/issues` |
+| ロゴ | なし |
+| 説明文 | このファイルの最後の「Description text」を参照 |
 
 #### Summary
 
@@ -104,13 +104,14 @@ Summary は1つの欄なので、英語の文と日本語の文を1つずつ、�
 Lightweight mob-spawn overlay: marks blocks where hostile mobs can spawn (red: always, yellow: at night). 軽量な湧き潰し確認MOD。
 ```
 
-#### Description
+#### 説明文
 
-Description も1つの欄です。このファイルの最後の「Description text」のブロックを丸ごと貼り付けます。英語の全文のあとに日本語の全文が続きます。
+説明文も1つの欄です。形式は Markdown を選び、このファイルの最後の「Description text」のブロックを丸ごと貼り付けます。英語の全文のあとに日本語の全文が続きます。
 
 ---
 
 ## Description text
+
 
 ```markdown
 **English** | **日本語** (below / 下にあります)

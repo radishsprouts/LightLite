@@ -85,7 +85,7 @@ See [docs/BENCHMARK.md](docs/BENCHMARK.md) for how to compare the cost of overla
 
 ### Publishing
 
-The steps and listing text for publishing on Modrinth are in [docs/MODRINTH.md](docs/MODRINTH.md).
+The steps and listing text for publishing on CurseForge are in [docs/CURSEFORGE.md](docs/CURSEFORGE.md).
 
 ### License
 
@@ -175,7 +175,7 @@ Mod Menu が入っていれば、MOD一覧から設定画面を開けます。�
 
 ### 公開
 
-Modrinth への公開の手順と掲載文は [docs/MODRINTH.md](docs/MODRINTH.md) にあります。
+CurseForge への公開の手順と掲載文は [docs/CURSEFORGE.md](docs/CURSEFORGE.md) にあります。
 
 ### ライセンス
 
