@@ -48,5 +48,8 @@ public final class PerfStats {
         rebuildUsPerFrame = 0;
         uploadedBytes = 0;
         sectionsScanned = 0;
+        drawCalls = 0;
+        drawnQuads = 0;
+        culledColumns = 0;
     }
 }

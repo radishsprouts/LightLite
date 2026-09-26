@@ -40,7 +40,7 @@ public class OverlayBenchmark implements FabricClientGameTest {
         int range = Integer.getInteger("lightlite.bench.range", 0);
         String mode = System.getProperty("lightlite.bench.mode", "tile");
         // static: turn in place; move: fly straight through new chunks; edit: keep placing/removing torches
-        String scenario = System.getProperty("lightlite.bench.scenario", "static");
+        String scenario = System.getProperty("lightlite.bench.scenario", "static").isBlank() ? "static" : System.getProperty("lightlite.bench.scenario", "static");
 
         try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
             //? if >=26.2 {

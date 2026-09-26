@@ -92,7 +92,11 @@ public final class OverlayRenderer {
 
     private void render(LevelRenderContext context) {
         OverlayManager manager = OverlayManager.get();
-        if (!manager.isActive()) return;
+        if (!manager.isActive()) {
+            PerfStats.drawCalls = 0;
+            PerfStats.drawnQuads = 0;
+            return;
+        }
         long start = System.nanoTime();
         MeshBackend current = backend();
         try {
