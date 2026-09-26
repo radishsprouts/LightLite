@@ -22,6 +22,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
@@ -48,6 +51,15 @@ public final class SpawnScanner {
     private static final EntityType<?> REFERENCE_MOB = EntityType.ZOMBIE;
     //?}
     private static final int[] EMPTY = new int[0];
+    /** The reference mob's spawn box, as the part inside the spawn block and the part inside the block above. */
+    private static final VoxelShape BODY_LOW;
+    private static final VoxelShape BODY_HIGH;
+
+    static {
+        AABB box = REFERENCE_MOB.getSpawnAABB(0.5, 0.0, 0.5);
+        BODY_LOW = Shapes.create(box.minX, 0.0, box.minZ, box.maxX, Math.min(box.maxY, 1.0), box.maxZ);
+        BODY_HIGH = Shapes.create(box.minX, 0.0, box.minZ, box.maxX, Math.min(box.maxY - 1.0, 1.0), box.maxZ);
+    }
 
     private static final byte UNKNOWN = 0;
     private static final byte NO = 1;
@@ -55,6 +67,8 @@ public final class SpawnScanner {
 
     private byte[] floorMemo = new byte[0];
     private byte[] spaceMemo = new byte[0];
+    private byte[] lowFitMemo = new byte[0];
+    private byte[] highFitMemo = new byte[0];
     private short[] heightMemo = new short[0];
     private final List<ResourceKey<Biome>> excludedBiomes = new ArrayList<>();
     private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -65,6 +79,8 @@ public final class SpawnScanner {
         int size = Block.BLOCK_STATE_REGISTRY.size();
         floorMemo = new byte[size];
         spaceMemo = new byte[size];
+        lowFitMemo = new byte[size];
+        highFitMemo = new byte[size];
         heightMemo = new short[size];
         java.util.Arrays.fill(heightMemo, (short) -1);
         excludedBiomes.clear();
@@ -130,6 +146,9 @@ public final class SpawnScanner {
                     probe.setWithOffset(pos, Direction.UP);
                     BlockState head = chunk.getBlockState(probe);
                     if (!spaceOk(level, probe, head)) continue;
+                    // Vanilla finally requires the mob's box to be free of block collisions
+                    if (!fits(level, probe, head, highFitMemo, BODY_HIGH)) continue;
+                    if (!fits(level, pos, space, lowFitMemo, BODY_LOW)) continue;
 
                     int blockLight = level.getBrightness(LightLayer.BLOCK, pos);
                     if (blockLimit < 15 && blockLight > blockLimit) continue;
@@ -184,6 +203,17 @@ public final class SpawnScanner {
         if (m != UNKNOWN) return m == YES;
         boolean ok = NaturalSpawner.isValidEmptySpawnBlock(level, at, state, state.getFluidState(), REFERENCE_MOB);
         spaceMemo[id] = ok ? YES : NO;
+        return ok;
+    }
+
+    /** Part of vanilla's {@code noCollision(spawnAABB)}: the block's collision shape leaves room for {@code body}. */
+    private static boolean fits(BlockGetter level, BlockPos at, BlockState state, byte[] memo, VoxelShape body) {
+        int id = stateId(state, memo);
+        if (id < 0) return !Shapes.joinIsNotEmpty(state.getCollisionShape(level, at), body, BooleanOp.AND);
+        byte m = memo[id];
+        if (m != UNKNOWN) return m == YES;
+        boolean ok = !Shapes.joinIsNotEmpty(state.getCollisionShape(level, at), body, BooleanOp.AND);
+        memo[id] = ok ? YES : NO;
         return ok;
     }
 

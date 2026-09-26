@@ -6,6 +6,8 @@ import io.github.radishsprouts.lightlite.scan.SpawnScanner;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * End-to-end check on a real client: markers appear in a sealed dark room, disappear when
@@ -40,6 +42,17 @@ public class LightLiteClientGameTest implements FabricClientGameTest {
 
             server.runCommand(String.format("setblock %d %d %d minecraft:torch", (MIN + MAX) / 2, SPAWN_Y, (MIN + MAX) / 2));
             expectRoom(context, 0, 0, "room lit by a torch");
+
+            // Soul sand and mud are lower than a full block but opaque: dark inside even next to a torch.
+            // A mob does not fit in them, so they must not be reported as spawn spots
+            int mid = (MIN + MAX) / 2;
+            server.runCommand(String.format("setblock %d %d %d minecraft:soul_sand", mid + 2, SPAWN_Y, mid));
+            server.runCommand(String.format("setblock %d %d %d minecraft:mud", mid, SPAWN_Y, mid + 2));
+            context.waitFor(client -> client.level.getBlockState(new BlockPos(mid, SPAWN_Y, mid + 2)).is(Blocks.MUD), TIMEOUT_TICKS);
+            context.waitTicks(40);
+            expectRoom(context, 0, 0, "lit room with soul sand and mud");
+            server.runCommand(String.format("setblock %d %d %d minecraft:air", mid + 2, SPAWN_Y, mid));
+            server.runCommand(String.format("setblock %d %d %d minecraft:air", mid, SPAWN_Y, mid + 2));
 
             server.runCommand(String.format("setblock %d %d %d minecraft:air", (MIN + MAX) / 2, SPAWN_Y, (MIN + MAX) / 2));
             expectRoom(context, SpawnScanner.KIND_ALWAYS, ROOM_SPOTS, "torch removed");

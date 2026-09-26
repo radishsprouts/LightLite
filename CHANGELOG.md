@@ -1,5 +1,15 @@
 # Changelog / 変更履歴
 
+## Unreleased
+
+### English
+
+- Fixed red markers on soul sand and mud even right next to a torch. Like vanilla, a spot now counts only if the mob's body does not collide with blocks, which also removes false markers on carpets, fences, farmland and similar blocks.
+
+### 日本語
+
+- 松明のすぐ隣でも、ソウルサンドと泥の上に赤いマーカーが出ていた不具合を直しました。バニラと同じく、モブの体がブロックにぶつかる場所は湧く場所として扱わなくなりました。カーペット・フェンス・耕地などに出ていた誤ったマーカーも出なくなります。
+
 ## 0.1.0 (2026-09-26)
 
 ### English
