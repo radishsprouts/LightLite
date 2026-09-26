@@ -66,6 +66,13 @@ public final class LightLiteConfigScreen extends Screen {
                 v -> String.valueOf((int) v), v -> cfg.verticalRange = (int) v));
         y += ROW_STEP;
 
+        addRenderableWidget(new ValueSlider(x, y, "lightlite.config.grid_distance",
+                0, 64, 4, cfg.gridDistance,
+                v -> String.valueOf((int) v), v -> {
+                    cfg.gridDistance = (int) v;
+                }));
+        y += ROW_STEP;
+
         addRenderableWidget(CycleButton.onOffBuilder(cfg.onlyWhenHoldingLight)
                 .create(x, y, ROW_WIDTH, ROW_HEIGHT, Component.translatable("lightlite.config.only_when_holding_light"),
                         (button, value) -> cfg.onlyWhenHoldingLight = value));

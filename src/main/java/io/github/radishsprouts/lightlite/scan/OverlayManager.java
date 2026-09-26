@@ -226,7 +226,7 @@ public final class OverlayManager {
             regions.put(rk, region);
         }
         region.sections.add(sectionKey);
-        region.dirty = true;
+        region.markDirty();
     }
 
     private void detachFromRegion(long sectionKey) {
@@ -234,7 +234,7 @@ public final class OverlayManager {
         Region region = regions.get(rk);
         if (region == null) return;
         region.sections.remove(sectionKey);
-        region.dirty = true;
+        region.markDirty();
         if (region.sections.isEmpty()) {
             regions.remove(rk);
             OverlayRenderer.get().release(region);
@@ -243,7 +243,7 @@ public final class OverlayManager {
 
     /** Forces every region mesh to be rebuilt (e.g. display mode or colors changed). */
     public synchronized void invalidateMeshes() {
-        for (Region region : regions.values()) region.dirty = true;
+        for (Region region : regions.values()) region.markDirty();
     }
 
     /** Drops everything, including GPU buffers. Markers are recomputed on demand. */

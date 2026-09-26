@@ -23,6 +23,7 @@ import java.util.OptionalInt;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.radishsprouts.lightlite.scan.Region;
+import io.github.radishsprouts.lightlite.scan.RegionMesh;
 import io.github.radishsprouts.lightlite.util.PerfStats;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.Minecraft;
@@ -34,12 +35,11 @@ import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.OptionalDouble;
 
 /**
  * Default path: each region's quads live in a GPU vertex buffer that is uploaded only when
- * the region changes. A frame costs one render pass with one draw call per non-empty region,
+ * the region changes. A frame costs one render pass with one draw call per visible range,
  * reusing vanilla's {@code debug_quads} pipeline and shared quad index buffer.
  */
 final class RetainedBackend implements MeshBackend {
@@ -49,7 +49,6 @@ final class RetainedBackend implements MeshBackend {
     private static final Vector3f NO_OFFSET = new Vector3f();
     private static final Matrix4f IDENTITY = new Matrix4f();
 
-    private Region[] drawList = new Region[64];
     private GpuBufferSlice[] transforms = new GpuBufferSlice[64];
 
     @Override
@@ -58,8 +57,8 @@ final class RetainedBackend implements MeshBackend {
     }
 
     @Override
-    public void upload(Region region, MeshBuilder mesh) {
-        release(region);
+    public void upload(RegionMesh target, MeshBuilder mesh) {
+        release(target);
         int vertices = mesh.vertexCount;
         if (vertices == 0) return;
 
@@ -75,9 +74,9 @@ final class RetainedBackend implements MeshBackend {
                         .put((byte) (argb >>> 16)).put((byte) (argb >>> 8)).put((byte) argb).put((byte) (argb >>> 24));
             }
             data.flip();
-            region.gpu = RenderSystem.getDevice().createBuffer(() -> "LightLite region", GpuBuffer.USAGE_VERTEX, data);
-            region.quads = vertices >> 2;
-            region.gpuBytes = bytes;
+            target.gpu = RenderSystem.getDevice().createBuffer(() -> "LightLite region", GpuBuffer.USAGE_VERTEX, data);
+            target.quads = vertices >> 2;
+            target.gpuBytes = bytes;
             PerfStats.uploadedBytes += bytes;
         } finally {
             MemoryUtil.memFree(data);
@@ -85,29 +84,18 @@ final class RetainedBackend implements MeshBackend {
     }
 
     @Override
-    public void release(Region region) {
-        if (region.gpu instanceof GpuBuffer buffer) {
+    public void release(RegionMesh mesh) {
+        if (mesh.gpu instanceof GpuBuffer buffer) {
             buffer.close();
         }
-        region.gpu = null;
-        region.quads = 0;
-        region.gpuBytes = 0;
+        mesh.gpu = null;
+        mesh.quads = 0;
+        mesh.gpuBytes = 0;
     }
 
     @Override
-    public int submit(LevelRenderContext context, Collection<Region> regions) {
-        int count = 0;
-        int maxQuads = 0;
-        for (Region region : regions) {
-            if (!(region.gpu instanceof GpuBuffer) || region.quads == 0) continue;
-            if (count == drawList.length) {
-                drawList = java.util.Arrays.copyOf(drawList, count * 2);
-                transforms = java.util.Arrays.copyOf(transforms, count * 2);
-            }
-            drawList[count++] = region;
-            maxQuads = Math.max(maxQuads, region.quads);
-        }
-        if (count == 0) return 0;
+    public int submit(LevelRenderContext context, DrawList draws) {
+        if (draws.size == 0) return 0;
 
         Vec3 camera = context.levelState().cameraRenderState.pos;
         //? if >=26.2 {
@@ -117,14 +105,21 @@ final class RetainedBackend implements MeshBackend {
         //?}
         base.mul(context.poseStack().last().pose());
 
-        // Uniform writes must happen outside the render pass
-        for (int i = 0; i < count; i++) {
-            Region region = drawList[i];
-            Matrix4f modelView = new Matrix4f(base).translate(
-                    (float) (region.originX() - camera.x),
-                    (float) -camera.y,
-                    (float) (region.originZ() - camera.z));
-            transforms[i] = RenderSystem.getDynamicUniforms().writeTransform(modelView, WHITE, NO_OFFSET, IDENTITY);
+        // Uniform writes must happen outside the render pass; one transform per region
+        if (transforms.length < draws.size) transforms = new GpuBufferSlice[draws.regions.length];
+        Region previous = null;
+        GpuBufferSlice current = null;
+        for (int i = 0; i < draws.size; i++) {
+            Region region = draws.regions[i];
+            if (region != previous) {
+                Matrix4f modelView = new Matrix4f(base).translate(
+                        (float) (region.originX() - camera.x),
+                        (float) -camera.y,
+                        (float) (region.originZ() - camera.z));
+                current = RenderSystem.getDynamicUniforms().writeTransform(modelView, WHITE, NO_OFFSET, IDENTITY);
+                previous = region;
+            }
+            transforms[i] = current;
         }
 
         //? if >=26.2 {
@@ -134,7 +129,7 @@ final class RetainedBackend implements MeshBackend {
         RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
         RenderTarget target = Minecraft.getInstance().getMainRenderTarget();
         //?}
-        GpuBuffer indices = quadIndices.getBuffer(maxQuads * 6);
+        GpuBuffer indices = quadIndices.getBuffer(draws.maxQuads * 6);
         var color = target.getColorTextureView();
         var depth = target.getDepthTextureView();
         if (color == null) return 0;
@@ -144,6 +139,7 @@ final class RetainedBackend implements MeshBackend {
         if (pipeline == null) return 0;
         *///?}
 
+        int calls = 0;
         //? if >=26.2 {
         /*try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder()
                 .createRenderPass(() -> "LightLite overlay", color, Optional.empty(), depth, OptionalDouble.empty())) {
@@ -158,22 +154,34 @@ final class RetainedBackend implements MeshBackend {
             //?}
             RenderSystem.bindDefaultUniforms(pass);
             pass.setIndexBuffer(indices, quadIndices.type());
-            for (int i = 0; i < count; i++) {
-                Region region = drawList[i];
-                GpuBuffer vertices = (GpuBuffer) region.gpu;
-                pass.setUniform("DynamicTransforms", transforms[i]);
+            GpuBufferSlice boundTransform = null;
+            RegionMesh boundMesh = null;
+            for (int i = 0; i < draws.size; i++) {
+                RegionMesh mesh = draws.meshes[i];
+                if (!(mesh.gpu instanceof GpuBuffer vertices)) continue;
+                if (transforms[i] != boundTransform) {
+                    pass.setUniform("DynamicTransforms", transforms[i]);
+                    boundTransform = transforms[i];
+                }
+                if (mesh != boundMesh) {
+                    //? if >=26.2 {
+                    /*pass.setVertexBuffer(0, vertices.slice());
+                    *///?} else {
+                    pass.setVertexBuffer(0, vertices);
+                    //?}
+                    boundMesh = mesh;
+                }
+                int baseVertex = draws.firstQuad[i] * 4;
+                int indexCount = draws.quadCount[i] * 6;
                 //? if >=26.2 {
-                /*pass.setVertexBuffer(0, vertices.slice());
-                pass.drawIndexed(region.quads * 6, 1, 0, 0, 0);
+                /*pass.drawIndexed(indexCount, 1, 0, baseVertex, 0);
                 *///?} else {
-                pass.setVertexBuffer(0, vertices);
-                pass.drawIndexed(0, 0, region.quads * 6, 1);
+                pass.drawIndexed(baseVertex, 0, indexCount, 1);
                 //?}
+                calls++;
             }
         }
-
-        for (int i = 0; i < count; i++) drawList[i] = null;
-        return count;
+        return calls;
     }
 
     @Override

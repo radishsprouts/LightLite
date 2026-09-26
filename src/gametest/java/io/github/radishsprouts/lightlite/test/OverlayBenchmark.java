@@ -39,6 +39,8 @@ public class OverlayBenchmark implements FabricClientGameTest {
         int warmup = Integer.getInteger("lightlite.bench.warmup", 300);
         int range = Integer.getInteger("lightlite.bench.range", 0);
         String mode = System.getProperty("lightlite.bench.mode", "tile");
+        // static: turn in place; move: fly straight through new chunks; edit: keep placing/removing torches
+        String scenario = System.getProperty("lightlite.bench.scenario", "static");
 
         try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
             //? if >=26.2 {
@@ -62,11 +64,29 @@ public class OverlayBenchmark implements FabricClientGameTest {
             PerfStats.reset();
 
             FrameTimer.start(ticks * 4);
+            var server = singleplayer.getServer();
             for (int i = 0; i < ticks; i++) {
-                float yaw = i * 360.0F / ticks;
-                context.runOnClient(client -> {
-                    if (client.player != null) client.player.setYRot(yaw);
-                });
+                switch (scenario) {
+                    case "move" -> server.runCommand("tp @a ~0.5 ~ ~ -90 25");
+                    case "edit" -> {
+                        if (i % 4 == 0) {
+                            // Deterministic spots 4..20 blocks around the start, alternately lit and cleared
+                            int n = i / 4;
+                            double angle = n * 2.399963; // golden angle spreads the spots evenly
+                            int radius = 4 + (n * 7) % 17;
+                            int x = (int) Math.round(Math.cos(angle) * radius);
+                            int z = (int) Math.round(Math.sin(angle) * radius);
+                            String block = (n / 8) % 2 == 0 ? "minecraft:torch" : "minecraft:air";
+                            server.runCommand("setblock " + x + " -60 " + z + " " + block);
+                        }
+                    }
+                    default -> {
+                        float yaw = i * 360.0F / ticks;
+                        context.runOnClient(client -> {
+                            if (client.player != null) client.player.setYRot(yaw);
+                        });
+                    }
+                }
                 context.waitTick();
             }
             FrameTimer.recording = false;
@@ -76,9 +96,9 @@ public class OverlayBenchmark implements FabricClientGameTest {
             int markers = context.computeOnClient(client -> OverlayManager.get().countMarkers(
                     Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE,
                     Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 0));
-            writeResult(target + (mode.equals("cross") ? "-cross" : ""), frames, tickTimes, markers, range);
+            writeResult(target + (mode.equals("cross") ? "-cross" : "") + (scenario.equals("static") ? "" : "/" + scenario), frames, tickTimes, markers, range);
             // Visual proof that the overlay under test was actually on
-            context.takeScreenshot("bench-" + target + (mode.equals("cross") ? "-cross" : "") + (range > 0 ? "-" + range : ""));
+            context.takeScreenshot("bench-" + target + (mode.equals("cross") ? "-cross" : "") + (range > 0 ? "-" + range : "") + "-" + scenario);
         }
     }
 
@@ -129,10 +149,10 @@ public class OverlayBenchmark implements FabricClientGameTest {
     private static void writeResult(String target, long[] frames, long[] tickTimes, int markers, int range) {
         String json = String.format(Locale.ROOT,
                 "{\"target\":\"%s\",\"minecraft\":\"%s\",\"range\":%d,\"frames\":%d,%s,%s,"
-                        + "\"lightliteMarkers\":%d,\"lightliteScanMsPerTick\":%.4f,\"lightliteRenderUsPerFrame\":%.2f}%n",
+                        + "\"lightliteMarkers\":%d,\"lightliteDrawnQuads\":%d,\"lightliteDrawCalls\":%d,\"lightliteScanMsPerTick\":%.4f,\"lightliteRenderUsPerFrame\":%.2f}%n",
                 target, SharedConstants.getCurrentVersion().name(), range, frames.length,
                 stats("frame", frames), stats("tick", tickTimes),
-                markers, PerfStats.scanMsPerTick, PerfStats.renderUsPerFrame);
+                markers, PerfStats.drawnQuads, PerfStats.drawCalls, PerfStats.scanMsPerTick, PerfStats.renderUsPerFrame);
         try {
             // The gametest run directory is wiped before every run, so results go elsewhere
             String out = System.getProperty("lightlite.bench.out");

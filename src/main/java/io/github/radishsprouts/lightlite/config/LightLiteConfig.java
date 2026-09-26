@@ -45,6 +45,11 @@ public final class LightLiteConfig {
     public double tickBudgetMs = 1.5;
     public Backend backend = Backend.AUTO;
     public boolean onlyWhenHoldingLight = false;
+    /**
+     * Within this many blocks each marker is its own tile (readable grid); beyond it, neighbouring
+     * tiles are merged into rectangles to save vertices. 0 = always merged.
+     */
+    public int gridDistance = 16;
     public List<String> excludedBiomes = new ArrayList<>(List.of("minecraft:mushroom_fields", "minecraft:deep_dark"));
 
     public static LightLiteConfig get() {
@@ -87,6 +92,7 @@ public final class LightLiteConfig {
         if (parseArgb(alwaysColor) == null) alwaysColor = "70FF2A2A";
         if (parseArgb(nightColor) == null) nightColor = "70FFD21E";
         if (excludedBiomes == null) excludedBiomes = new ArrayList<>();
+        gridDistance = clamp(gridDistance, 0, MAX_HORIZONTAL_RANGE);
     }
 
     public int alwaysArgb() {

@@ -18,6 +18,8 @@ public final class PerfStats {
     public static int markers;
     public static int regions;
     public static int drawCalls;
+    public static int drawnQuads;
+    public static int culledColumns;
     public static long gpuBytes;
     public static String backend = "-";
 

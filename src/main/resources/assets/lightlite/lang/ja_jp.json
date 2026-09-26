@@ -19,5 +19,6 @@
   "lightlite.config.vertical_range": "垂直範囲: %s",
   "lightlite.config.only_when_holding_light": "明かりを持っている時だけ表示",
   "lightlite.config.tick_budget": "1ティックの処理時間上限: %s",
-  "lightlite.config.backend": "描画方式"
+  "lightlite.config.backend": "描画方式",
+  "lightlite.config.grid_distance": "格子表示の距離: %s"
 }
