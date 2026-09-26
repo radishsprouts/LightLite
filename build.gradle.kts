@@ -99,6 +99,17 @@ tasks {
         from("../../LICENSE") { rename { "${it}_$name" } }
     }
 
+    // ./gradlew :<mc>:runClientGameTest -PlightliteBench=<target> [-PlightliteBenchRange=64]
+    named<JavaExec>("runClientGameTest") {
+        val bench = providers.gradleProperty("lightliteBench")
+        val range = providers.gradleProperty("lightliteBenchRange")
+        inputs.property("lightliteBench", bench.orElse(""))
+        doFirst {
+            if (bench.isPresent) systemProperty("lightlite.bench", bench.get())
+            if (range.isPresent) systemProperty("lightlite.bench.range", range.get())
+        }
+    }
+
     register<Copy>("buildAndCollect") {
         group = "build"
         description = "Builds mod jars and copies them to `build/libs/{mod version}/`"

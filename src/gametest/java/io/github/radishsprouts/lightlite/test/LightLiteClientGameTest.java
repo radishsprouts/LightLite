@@ -24,6 +24,7 @@ public class LightLiteClientGameTest implements FabricClientGameTest {
 
     @Override
     public void runTest(ClientGameTestContext context) {
+        if (System.getProperty("lightlite.bench") != null) return;
         try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
             //? if >=26.2 {
             /*singleplayer.getConnection().waitForChunksRender();
