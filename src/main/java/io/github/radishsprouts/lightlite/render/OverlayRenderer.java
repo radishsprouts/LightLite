@@ -18,8 +18,8 @@ import java.util.Collection;
  * Glue between the marker cache and the active mesh backend.
  *
  * <p>Per frame it only decides what to draw: chunk columns outside the view frustum are skipped,
- * columns within {@code gridDistance} use the per-block tile mesh (readable grid), farther ones the
- * merged mesh (far fewer vertices; the gaps between tiles are sub-pixel there anyway). Meshes are rebuilt
+ * columns within {@code gridDistance} use the detailed mesh (per-block tiles or crosses), farther ones
+ * the merged tile mesh (far fewer vertices; the gaps between tiles are sub-pixel there anyway). Meshes are rebuilt
  * only when their region's markers changed, with a small per-frame cap.
  */
 public final class OverlayRenderer {
@@ -121,7 +121,6 @@ public final class OverlayRenderer {
     /** Rebuilds what changed and fills {@link #draws} with the visible column ranges. */
     private void collect(LevelRenderContext context, OverlayManager manager, MeshBackend current) {
         LightLiteConfig cfg = LightLiteConfig.get();
-        boolean tiles = cfg.mode == LightLiteConfig.Mode.TILE;
         double gridDistance = cfg.gridDistance;
         var camera = context.levelState().cameraRenderState;
         Vec3 cam = camera.pos;
@@ -134,7 +133,7 @@ public final class OverlayRenderer {
         for (Region region : regions) {
             RegionMesh far = region.far;
             if (far.dirty && rebuilds < MAX_REBUILDS_PER_FRAME) {
-                builder.build(region, far, manager, cfg, tiles);
+                builder.build(region, far, manager, cfg, true);
                 current.upload(far, builder);
                 far.dirty = false;
                 rebuilds++;
@@ -153,7 +152,7 @@ public final class OverlayRenderer {
                     continue;
                 }
                 RegionMesh mesh = far;
-                if (tiles && dist <= gridDistance) {
+                if (dist <= gridDistance) {
                     RegionMesh near = region.near;
                     if (near.dirty && rebuilds < MAX_REBUILDS_PER_FRAME) {
                         builder.build(region, near, manager, cfg, false);
@@ -167,7 +166,7 @@ public final class OverlayRenderer {
                 if (mesh.columnQuads[c] > 0) draws.add(region, mesh, mesh.columnStart[c], mesh.columnQuads[c]);
             }
 
-            if (region.near.hasData() && (!tiles || nearest > gridDistance + NEAR_RELEASE_MARGIN)) {
+            if (region.near.hasData() && nearest > gridDistance + NEAR_RELEASE_MARGIN) {
                 current.release(region.near);
                 region.near.dirty = true;
             }

@@ -43,11 +43,12 @@ final class MeshBuilder {
     }
 
     /**
-     * @param merged merge tiles into rectangles (ignored for crosses, which are always per block)
+     * @param merged build merged tiles (used at a distance in both display modes); otherwise the
+     *               detailed mesh: one inset tile per block, or crosses in cross mode
      */
     void build(Region region, RegionMesh mesh, OverlayManager manager, LightLiteConfig cfg, boolean merged) {
         vertexCount = 0;
-        boolean cross = cfg.mode == LightLiteConfig.Mode.CROSS;
+        boolean cross = !merged && cfg.mode == LightLiteConfig.Mode.CROSS;
         int always = cfg.alwaysArgb();
         int night = cfg.nightArgb();
         if (cross) {

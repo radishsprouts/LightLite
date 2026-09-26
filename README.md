@@ -50,7 +50,7 @@ Mod Menu が入っていれば、MOD一覧から設定画面を開けます。�
 | `alwaysColor` / `nightColor` | `70FF2A2A` / `70FFD21E` | ARGB の16進数 |
 | `tickBudgetMs` | `1.5` | 1ティックあたりのスキャン時間の上限 |
 | `backend` | `AUTO` | `RETAINED`（GPU保持、最速）/ `IMMEDIATE`（互換性重視）/ `AUTO`（Iris があれば IMMEDIATE） |
-| `gridDistance` | `16` | この距離（ブロック）以内は1マスずつのタイル、それより遠くは隣り合うタイルを1枚にまとめて描く（0で常にまとめる） |
+| `gridDistance` | `16` | この距離（ブロック）以内は1マスずつ（タイルまたはX印）、それより遠くは隣り合うマスを1枚のタイルにまとめて描く（0で常にまとめる） |
 | `onlyWhenHoldingLight` | `false` | 光源ブロックを手に持っている時だけ表示し、スキャンもその間だけ行う |
 | `excludedBiomes` | キノコ島、ディープダーク | 敵が自然に湧かないバイオーム |
 
