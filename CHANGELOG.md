@@ -1,5 +1,17 @@
 # Changelog / 変更履歴
 
+## 0.1.1 (unreleased)
+
+### English
+
+- Fixed: the overlay was not shown while an Iris shader pack was active. The markers now draw with LightLite's own pipeline, which is assigned to the shader pack's basic program through the Iris API.
+- The `AUTO` renderer now uses the GPU-retained path with Iris installed too. It still falls back to the immediate path if the retained path fails.
+
+### 日本語
+
+- 修正: Iris のシェーダーパックを有効にしているとき、オーバーレイが表示されなかった。LightLite 専用のパイプラインで描くようにし、Iris の API でシェーダーパックの basic プログラムに割り当てるようにした。
+- 描画方式の `AUTO` は、Iris が入っていても GPU 保持方式を使うようにした。GPU 保持方式が失敗したときは、これまでどおり逐次描画に切り替わる。
+
 ## 0.1.0 (2026-09-26)
 
 ### English

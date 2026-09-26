@@ -4,7 +4,8 @@
   "compatibilityLevel": "${java}",
   "client": [
     "ClientChunkCacheMixin",
-    "ClientLevelMixin"
+    "ClientLevelMixin",
+    "RenderTypeInvoker"
   ],
   "injectors": {
     "defaultRequire": 1
