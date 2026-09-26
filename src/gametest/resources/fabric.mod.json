@@ -12,5 +12,8 @@
   },
   "depends": {
     "lightlite": "*"
-  }
+  },
+  "mixins": [
+    "lightlite-test.mixins.json"
+  ]
 }

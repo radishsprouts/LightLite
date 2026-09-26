@@ -59,24 +59,35 @@ public class OverlayBenchmark implements FabricClientGameTest {
             context.waitTicks(warmup);
             PerfStats.reset();
 
-            long[] frameNanos = new long[ticks];
-            long start = System.nanoTime();
+            FrameTimer.start(ticks * 4);
             for (int i = 0; i < ticks; i++) {
                 float yaw = i * 360.0F / ticks;
-                long t0 = System.nanoTime();
                 context.runOnClient(client -> {
                     if (client.player != null) client.player.setYRot(yaw);
                 });
                 context.waitTick();
-                frameNanos[i] = System.nanoTime() - t0;
             }
-            long total = System.nanoTime() - start;
+            FrameTimer.recording = false;
+            long[] frames = java.util.Arrays.copyOf(FrameTimer.frames, FrameTimer.frameCount);
+            long[] tickTimes = java.util.Arrays.copyOf(FrameTimer.ticks, FrameTimer.tickCount);
 
             int markers = context.computeOnClient(client -> OverlayManager.get().countMarkers(
                     Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE,
                     Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 0));
-            writeResult(target, ticks, total, frameNanos, markers, range);
+            writeResult(target, frames, tickTimes, markers, range);
         }
+    }
+
+    private static String stats(String name, long[] nanos) {
+        if (nanos.length == 0) return String.format(Locale.ROOT, "\"%sAvgMs\":0,\"%sP50Ms\":0,\"%sP99Ms\":0", name, name, name);
+        long[] sorted = nanos.clone();
+        Arrays.sort(sorted);
+        double sum = 0;
+        for (long n : sorted) sum += n;
+        return String.format(Locale.ROOT, "\"%sAvgMs\":%.3f,\"%sP50Ms\":%.3f,\"%sP99Ms\":%.3f",
+                name, sum / sorted.length / 1e6,
+                name, sorted[sorted.length / 2] / 1e6,
+                name, sorted[Math.min(sorted.length - 1, (int) (sorted.length * 0.99))] / 1e6);
     }
 
     /** Turns on another mod's overlay through its own toggle, as its hotkey would. */
@@ -111,16 +122,12 @@ public class OverlayBenchmark implements FabricClientGameTest {
         setter.invoke(option, true);
     }
 
-    private static void writeResult(String target, int ticks, long totalNanos, long[] frameNanos, int markers, int range) {
-        long[] sorted = frameNanos.clone();
-        Arrays.sort(sorted);
-        double avgMs = totalNanos / 1_000_000.0 / ticks;
-        double p50 = sorted[sorted.length / 2] / 1_000_000.0;
-        double p99 = sorted[(int) (sorted.length * 0.99)] / 1_000_000.0;
+    private static void writeResult(String target, long[] frames, long[] tickTimes, int markers, int range) {
         String json = String.format(Locale.ROOT,
-                "{\"target\":\"%s\",\"minecraft\":\"%s\",\"ticks\":%d,\"range\":%d,\"avgMs\":%.3f,\"p50Ms\":%.3f,\"p99Ms\":%.3f,"
+                "{\"target\":\"%s\",\"minecraft\":\"%s\",\"range\":%d,\"frames\":%d,%s,%s,"
                         + "\"lightliteMarkers\":%d,\"lightliteScanMsPerTick\":%.4f,\"lightliteRenderUsPerFrame\":%.2f}%n",
-                target, SharedConstants.getCurrentVersion().name(), ticks, range, avgMs, p50, p99,
+                target, SharedConstants.getCurrentVersion().name(), range, frames.length,
+                stats("frame", frames), stats("tick", tickTimes),
                 markers, PerfStats.scanMsPerTick, PerfStats.renderUsPerFrame);
         try {
             // The gametest run directory is wiped before every run, so results go elsewhere
