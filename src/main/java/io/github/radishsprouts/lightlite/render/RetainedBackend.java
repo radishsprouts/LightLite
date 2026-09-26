@@ -66,20 +66,15 @@ final class RetainedBackend implements MeshBackend {
         long bytes = (long) vertices * VERTEX_SIZE;
         ByteBuffer data = MemoryUtil.memAlloc((int) bytes);
         try {
+            // Relative ByteBuffer puts are JIT intrinsics; MemoryUtil.memPut* goes through FFM per call
             float[] pos = mesh.positions;
             int[] colors = mesh.colors;
-            long address = MemoryUtil.memAddress(data);
-            for (int v = 0; v < vertices; v++) {
-                long p = address + (long) v * VERTEX_SIZE;
-                MemoryUtil.memPutFloat(p, pos[v * 3]);
-                MemoryUtil.memPutFloat(p + 4, pos[v * 3 + 1]);
-                MemoryUtil.memPutFloat(p + 8, pos[v * 3 + 2]);
+            for (int v = 0, p = 0; v < vertices; v++, p += 3) {
                 int argb = colors[v];
-                MemoryUtil.memPutByte(p + 12, (byte) (argb >>> 16));
-                MemoryUtil.memPutByte(p + 13, (byte) (argb >>> 8));
-                MemoryUtil.memPutByte(p + 14, (byte) argb);
-                MemoryUtil.memPutByte(p + 15, (byte) (argb >>> 24));
+                data.putFloat(pos[p]).putFloat(pos[p + 1]).putFloat(pos[p + 2])
+                        .put((byte) (argb >>> 16)).put((byte) (argb >>> 8)).put((byte) argb).put((byte) (argb >>> 24));
             }
+            data.flip();
             region.gpu = RenderSystem.getDevice().createBuffer(() -> "LightLite region", GpuBuffer.USAGE_VERTEX, data);
             region.quads = vertices >> 2;
             region.gpuBytes = bytes;
