@@ -22,7 +22,7 @@ Markers can be translucent tiles (the default) or crosses.
 - **Each tick has a time limit.** By default, scanning uses at most 1.5 ms per tick, starting with the sections closest to the player.
 - **No vertices are built every frame.** Markers are sent to a GPU buffer once for each 64×64-block area. Every frame, the only work is issuing draw calls for what is visible.
 - **Less is drawn out of view and far away.** Chunk columns outside the screen are not drawn. Beyond `gridDistance` (16 blocks by default), neighbouring tiles of the same color are merged into one, which greatly reduces the vertex count.
-- **The spawn check is vanilla's own.** Floor checks (`isValidSpawn`) and space checks (`NaturalSpawner.isValidEmptySpawnBlock`) call vanilla functions. The light conditions are read from the dimension settings, so the result is also correct in the Nether and other dimensions.
+- **The spawn check is vanilla's own.** Floor checks (`isValidSpawn`) and space checks (`NaturalSpawner.isValidEmptySpawnBlock`) call vanilla functions, and like vanilla, a spot counts only if the mob's body does not collide with blocks (so soul sand, mud, carpets and fences are not spawn spots). The light conditions are read from the dimension settings, so the result is also correct in the Nether and other dimensions.
 
 ### Controls
 
@@ -113,7 +113,7 @@ MIT
 - **1ティックの処理時間に上限がある。** スキャンは既定で 1ティックあたり 1.5ms までで、プレイヤーに近い所から処理します。
 - **毎フレームの頂点生成がない。** マーカーは 64×64 ブロックの領域ごとにGPUのバッファへ一度だけ送ります。毎フレームの処理は、見えている範囲の描画命令だけです。
 - **見えない所・遠い所は描く量を減らす。** 画面外のチャンク列は描きません。`gridDistance`（既定16ブロック）より遠くは、隣り合う同じ色のタイルを1枚にまとめ、頂点数を大きく減らします。
-- **判定はバニラそのもの。** 足場の判定（`isValidSpawn`）と空間の判定（`NaturalSpawner.isValidEmptySpawnBlock`）はバニラの関数を使います。明るさの条件はディメンションの設定から読むので、ネザーなどでも正しく判定します。
+- **判定はバニラそのもの。** 足場の判定（`isValidSpawn`）と空間の判定（`NaturalSpawner.isValidEmptySpawnBlock`）はバニラの関数を使います。バニラと同じく、モブの体がブロックにぶつかる場所は除きます（ソウルサンド・泥・カーペット・フェンスなどは湧く場所になりません）。明るさの条件はディメンションの設定から読むので、ネザーなどでも正しく判定します。
 
 ### 操作
 
