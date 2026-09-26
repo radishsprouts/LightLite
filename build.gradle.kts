@@ -51,6 +51,11 @@ dependencies {
         "gametestRuntimeOnly"(fileTree(rootProject.file("bench-mods/${sc.current.version}/$target")) { include("*.jar") })
     }
 
+    // Shader compatibility test: Iris and Sodium from bench-mods/<mc version>/iris/ (not committed)
+    if (providers.gradleProperty("lightliteIris").isPresent) {
+        "gametestRuntimeOnly"(fileTree(rootProject.file("bench-mods/${sc.current.version}/iris")) { include("*.jar") })
+    }
+
     // Client gametests run with the full Fabric API
     "gametestImplementation"("net.fabricmc.fabric-api:fabric-api:${sc.properties.get<String>("deps.fabric_api")}")
 
@@ -105,6 +110,7 @@ tasks {
         from("../../LICENSE") { rename { "${it}_$name" } }
     }
 
+    // ./gradlew :<mc>:runClientGameTest -PlightliteIris  (overlay with a shader pack; needs bench-mods/<mc>/iris/)
     // ./gradlew :<mc>:runClientGameTest -PlightliteBench=<target> [-PlightliteBenchRange=64] [-PlightliteBenchMode=cross] [-PlightliteBenchScenario=static|move|edit]
     named<JavaExec>("runClientGameTest") {
         val bench = providers.gradleProperty("lightliteBench")
@@ -112,7 +118,9 @@ tasks {
         val jfr = providers.gradleProperty("lightliteBenchJfr")
         val mode = providers.gradleProperty("lightliteBenchMode")
         val scenario = providers.gradleProperty("lightliteBenchScenario")
+        val iris = providers.gradleProperty("lightliteIris")
         inputs.property("lightliteBench", bench.orElse(""))
+        inputs.property("lightliteIris", iris.orElse(""))
         val out = rootProject.layout.buildDirectory.file("bench/results.jsonl").get().asFile.absolutePath
         doFirst {
             systemProperty("lightlite.bench.out", out)
@@ -120,6 +128,7 @@ tasks {
             if (range.isPresent) systemProperty("lightlite.bench.range", range.get())
             if (mode.isPresent) systemProperty("lightlite.bench.mode", mode.get())
             if (scenario.isPresent) systemProperty("lightlite.bench.scenario", scenario.get())
+            if (iris.isPresent) systemProperty("lightlite.iris", "true")
             if (jfr.isPresent) jvmArgs("-XX:StartFlightRecording=filename=${jfr.get()},settings=profile")
         }
     }

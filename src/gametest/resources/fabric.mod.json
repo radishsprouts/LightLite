@@ -7,7 +7,8 @@
   "entrypoints": {
     "fabric-client-gametest": [
       "io.github.radishsprouts.lightlite.test.LightLiteClientGameTest",
-      "io.github.radishsprouts.lightlite.test.OverlayBenchmark"
+      "io.github.radishsprouts.lightlite.test.OverlayBenchmark",
+      "io.github.radishsprouts.lightlite.test.IrisOverlayTest"
     ]
   },
   "depends": {
