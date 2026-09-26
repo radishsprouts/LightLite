@@ -27,7 +27,6 @@ import io.github.radishsprouts.lightlite.scan.RegionMesh;
 import io.github.radishsprouts.lightlite.util.PerfStats;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -40,7 +39,7 @@ import java.util.OptionalDouble;
 /**
  * Default path: each region's quads live in a GPU vertex buffer that is uploaded only when
  * the region changes. A frame costs one render pass with one draw call per visible range,
- * reusing vanilla's {@code debug_quads} pipeline and shared quad index buffer.
+ * using {@link LightLitePipelines#OVERLAY} and vanilla's shared quad index buffer.
  */
 final class RetainedBackend implements MeshBackend {
     /** POSITION_COLOR: 3 floats + 4 unsigned bytes (RGBA). */
@@ -135,7 +134,7 @@ final class RetainedBackend implements MeshBackend {
         if (color == null) return 0;
 
         //? if >=26.3 {
-        /*CompiledRenderPipeline pipeline = RenderSystem.getCompiledPipelineNullable(RenderPipelines.DEBUG_QUADS);
+        /*CompiledRenderPipeline pipeline = RenderSystem.getCompiledPipelineNullable(LightLitePipelines.OVERLAY);
         if (pipeline == null) return 0;
         *///?}
 
@@ -150,7 +149,7 @@ final class RetainedBackend implements MeshBackend {
             //? if >=26.3 {
             /*pass.setPipeline(pipeline);
             *///?} else {
-            pass.setPipeline(RenderPipelines.DEBUG_QUADS);
+            pass.setPipeline(LightLitePipelines.OVERLAY);
             //?}
             RenderSystem.bindDefaultUniforms(pass);
             pass.setIndexBuffer(indices, quadIndices.type());

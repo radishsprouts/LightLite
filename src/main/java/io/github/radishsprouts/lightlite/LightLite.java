@@ -1,6 +1,7 @@
 package io.github.radishsprouts.lightlite;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import io.github.radishsprouts.lightlite.compat.IrisCompat;
 import io.github.radishsprouts.lightlite.config.LightLiteConfig;
 import io.github.radishsprouts.lightlite.render.OverlayRenderer;
 import io.github.radishsprouts.lightlite.scan.OverlayManager;
@@ -28,6 +29,7 @@ public final class LightLite implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LightLiteConfig.load();
+        IrisCompat.init();
 
         KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
         toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lightlite.toggle", InputConstants.KEY_F9, category));

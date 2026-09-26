@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.radishsprouts.lightlite.scan.Region;
 import io.github.radishsprouts.lightlite.scan.RegionMesh;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
@@ -54,7 +53,7 @@ final class ImmediateBackend implements MeshBackend {
             int[] count = Arrays.copyOfRange(draws.quadCount, i, end);
             poseStack.pushPose();
             poseStack.translate(region.originX() - camera.x, -camera.y, region.originZ() - camera.z);
-            context.submitNodeCollector().submitCustomGeometry(poseStack, RenderTypes.debugQuads(), (pose, buffer) -> {
+            context.submitNodeCollector().submitCustomGeometry(poseStack, LightLitePipelines.OVERLAY_TYPE, (pose, buffer) -> {
                 for (int r = 0; r < meshes.length; r++) {
                     float[] positions = meshes[r].cpuPositions;
                     int[] colors = meshes[r].cpuColors;
