@@ -105,17 +105,19 @@ tasks {
         from("../../LICENSE") { rename { "${it}_$name" } }
     }
 
-    // ./gradlew :<mc>:runClientGameTest -PlightliteBench=<target> [-PlightliteBenchRange=64]
+    // ./gradlew :<mc>:runClientGameTest -PlightliteBench=<target> [-PlightliteBenchRange=64] [-PlightliteBenchMode=cross]
     named<JavaExec>("runClientGameTest") {
         val bench = providers.gradleProperty("lightliteBench")
         val range = providers.gradleProperty("lightliteBenchRange")
         val jfr = providers.gradleProperty("lightliteBenchJfr")
+        val mode = providers.gradleProperty("lightliteBenchMode")
         inputs.property("lightliteBench", bench.orElse(""))
         val out = rootProject.layout.buildDirectory.file("bench/results.jsonl").get().asFile.absolutePath
         doFirst {
             systemProperty("lightlite.bench.out", out)
             if (bench.isPresent) systemProperty("lightlite.bench", bench.get())
             if (range.isPresent) systemProperty("lightlite.bench.range", range.get())
+            if (mode.isPresent) systemProperty("lightlite.bench.mode", mode.get())
             if (jfr.isPresent) jvmArgs("-XX:StartFlightRecording=filename=${jfr.get()},settings=profile")
         }
     }

@@ -38,6 +38,7 @@ public class OverlayBenchmark implements FabricClientGameTest {
         int ticks = Integer.getInteger("lightlite.bench.ticks", 600);
         int warmup = Integer.getInteger("lightlite.bench.warmup", 300);
         int range = Integer.getInteger("lightlite.bench.range", 0);
+        String mode = System.getProperty("lightlite.bench.mode", "tile");
 
         try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
             //? if >=26.2 {
@@ -50,6 +51,7 @@ public class OverlayBenchmark implements FabricClientGameTest {
             context.runOnClient(client -> {
                 LightLiteConfig cfg = LightLiteConfig.get();
                 cfg.enabled = target.equals("lightlite");
+                cfg.mode = mode.equals("cross") ? LightLiteConfig.Mode.CROSS : LightLiteConfig.Mode.TILE;
                 if (range > 0) {
                     cfg.horizontalRange = range;
                     cfg.verticalRange = Math.min(range, LightLiteConfig.MAX_VERTICAL_RANGE);
@@ -74,9 +76,9 @@ public class OverlayBenchmark implements FabricClientGameTest {
             int markers = context.computeOnClient(client -> OverlayManager.get().countMarkers(
                     Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE,
                     Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 0));
-            writeResult(target, frames, tickTimes, markers, range);
+            writeResult(target + (mode.equals("cross") ? "-cross" : ""), frames, tickTimes, markers, range);
             // Visual proof that the overlay under test was actually on
-            context.takeScreenshot("bench-" + target + (range > 0 ? "-" + range : ""));
+            context.takeScreenshot("bench-" + target + (mode.equals("cross") ? "-cross" : "") + (range > 0 ? "-" + range : ""));
         }
     }
 
