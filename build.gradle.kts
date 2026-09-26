@@ -16,6 +16,17 @@ repositories {
     strictMaven("https://maven.terraformersmc.com/releases", "Terraformers", "com.terraformersmc")
 }
 
+fabricApi {
+    // src/gametest: client gametests that start a real client (run with `runClientGameTest`)
+    configureTests {
+        createSourceSet = true
+        modId = "lightlite-test"
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
 dependencies {
     fun fapi(vararg modules: String) {
         for (it in modules) modImplementation(fabricApi.module(it, sc.properties["deps.fabric_api"]))
@@ -33,6 +44,9 @@ dependencies {
         "fabric-key-mapping-api-v1",
         "fabric-command-api-v2",
     )
+
+    // Client gametests run with the full Fabric API
+    "gametestImplementation"("net.fabricmc.fabric-api:fabric-api:${sc.properties.get<String>("deps.fabric_api")}")
 
     // Optional integration; not bundled
     modCompileOnly("com.terraformersmc:modmenu:${sc.properties.get<String>("deps.modmenu")}") { isTransitive = false }
