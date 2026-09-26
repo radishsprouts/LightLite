@@ -1,5 +1,6 @@
 package io.github.radishsprouts.lightlite.test;
 
+import io.github.radishsprouts.lightlite.render.OverlayRenderer;
 import io.github.radishsprouts.lightlite.scan.OverlayManager;
 import io.github.radishsprouts.lightlite.scan.SpawnScanner;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -24,7 +25,11 @@ public class LightLiteClientGameTest implements FabricClientGameTest {
     @Override
     public void runTest(ClientGameTestContext context) {
         try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
+            //? if >=26.2 {
+            /*singleplayer.getConnection().waitForChunksRender();
+            *///?} else {
             singleplayer.getClientLevel().waitForChunksRender();
+            //?}
             var server = singleplayer.getServer();
             server.runCommand("time set noon");
             server.runCommand(String.format("fill %d %d %d %d %d %d minecraft:stone hollow",
@@ -42,6 +47,10 @@ public class LightLiteClientGameTest implements FabricClientGameTest {
             int night = context.computeOnClient(client -> OverlayManager.get().countMarkers(
                     -24, -64, -24, -4, -40, -4, SpawnScanner.KIND_NIGHT));
             if (night == 0) throw new AssertionError("expected night-only markers on open ground, found none");
+
+            // Without shader mods the fast path must stay active (no silent fallback)
+            String backend = context.computeOnClient(client -> OverlayRenderer.get().backendName());
+            if (!"retained".equals(backend)) throw new AssertionError("expected retained backend, got " + backend);
 
             context.takeScreenshot("lightlite-overlay");
         }

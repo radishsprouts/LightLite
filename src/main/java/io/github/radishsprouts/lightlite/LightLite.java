@@ -38,7 +38,8 @@ public final class LightLite implements ClientModInitializer {
                 OverlayManager.get().onChunkLoaded(chunk.getPos().x(), chunk.getPos().z()));
         ClientChunkEvents.CHUNK_UNLOAD.register((level, chunk) ->
                 OverlayManager.get().onChunkUnloaded(chunk.getPos().x(), chunk.getPos().z()));
-        LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN.register(OverlayRenderer.get()::onAfterTranslucentTerrain);
+        // END_MAIN runs after vanilla closed its main render pass (26.3 keeps it open during terrain events)
+        LevelRenderEvents.END_MAIN.register(OverlayRenderer.get()::onEndMain);
         LevelRenderEvents.COLLECT_SUBMITS.register(OverlayRenderer.get()::onCollectSubmits);
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> OverlayRenderer.get().close());
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> LightLiteCommand.register(dispatcher));

@@ -47,9 +47,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
 
       - name: Install virtual display
-        run: sudo apt-get update && sudo apt-get install -y xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb libegl1 libegl-mesa0
 
       - name: Run client gametest (${{ matrix.minecraft }})
+        env:
+          # 26.3's SDL window cannot find a GLX visual on Xvfb; EGL works
+          SDL_VIDEO_FORCE_EGL: "1"
         run: xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew :${{ matrix.minecraft }}:runClientGameTest --stacktrace
 
       - uses: actions/upload-artifact@v5

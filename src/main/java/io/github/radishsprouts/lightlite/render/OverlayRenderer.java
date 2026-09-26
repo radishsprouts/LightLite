@@ -58,12 +58,17 @@ public final class OverlayRenderer {
         }
     }
 
+    /** Name of the backend in use, or {@code null} before the first frame. */
+    public String backendName() {
+        return backend != null ? backend.name() : null;
+    }
+
     public void release(Region region) {
         if (backend != null) backend.release(region);
     }
 
-    /** {@code LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN}: direct GPU drawing. */
-    public void onAfterTranslucentTerrain(LevelRenderContext context) {
+    /** {@code LevelRenderEvents.END_MAIN}: direct GPU drawing in its own render pass. */
+    public void onEndMain(LevelRenderContext context) {
         if (backend() instanceof RetainedBackend) render(context);
     }
 
