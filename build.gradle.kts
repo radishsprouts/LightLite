@@ -45,6 +45,11 @@ dependencies {
         "fabric-command-api-v2",
     )
 
+    // Other overlay mods for benchmarks: drop their jars into bench-mods/<mc version>/ (not committed)
+    if (providers.gradleProperty("lightliteBench").isPresent) {
+        "gametestRuntimeOnly"(fileTree(rootProject.file("bench-mods/${sc.current.version}")) { include("*.jar") })
+    }
+
     // Client gametests run with the full Fabric API
     "gametestImplementation"("net.fabricmc.fabric-api:fabric-api:${sc.properties.get<String>("deps.fabric_api")}")
 
@@ -104,7 +109,9 @@ tasks {
         val bench = providers.gradleProperty("lightliteBench")
         val range = providers.gradleProperty("lightliteBenchRange")
         inputs.property("lightliteBench", bench.orElse(""))
+        val out = rootProject.layout.buildDirectory.file("bench/results.jsonl").get().asFile.absolutePath
         doFirst {
+            systemProperty("lightlite.bench.out", out)
             if (bench.isPresent) systemProperty("lightlite.bench", bench.get())
             if (range.isPresent) systemProperty("lightlite.bench.range", range.get())
         }

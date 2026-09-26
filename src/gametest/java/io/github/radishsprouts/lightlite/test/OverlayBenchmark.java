@@ -24,7 +24,7 @@ import java.util.Locale;
  * number of ticks measures "one frame + one tick" including every mod's overlay work. The camera
  * turns a full circle while measuring. Targets: {@code none}, {@code lightlite},
  * {@code lightoverlay}, {@code lighty}, {@code minihud}. Other overlay mods must be present in
- * {@code run/mods} for their target.
+ * {@code bench-mods/<minecraft version>/} for their target.
  *
  * <p>This runs on software rendering, so GPU work shows up as CPU time. Treat results as a
  * relative comparison only.
@@ -123,9 +123,11 @@ public class OverlayBenchmark implements FabricClientGameTest {
                 target, SharedConstants.getCurrentVersion().name(), ticks, range, avgMs, p50, p99,
                 markers, PerfStats.scanMsPerTick, PerfStats.renderUsPerFrame);
         try {
-            Path dir = FabricLoader.getInstance().getGameDir().resolve("bench");
-            Files.createDirectories(dir);
-            Files.writeString(dir.resolve("results.jsonl"), json, StandardCharsets.UTF_8,
+            // The gametest run directory is wiped before every run, so results go elsewhere
+            String out = System.getProperty("lightlite.bench.out");
+            Path file = out != null ? Path.of(out) : FabricLoader.getInstance().getGameDir().resolve("bench/results.jsonl");
+            Files.createDirectories(file.getParent());
+            Files.writeString(file, json, StandardCharsets.UTF_8,
                     java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
         } catch (Exception e) {
             throw new AssertionError("Could not write benchmark result", e);
