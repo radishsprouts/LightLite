@@ -76,7 +76,7 @@ Mod Menu が入っていれば、MOD一覧から設定画面を開けます。�
 
 3バージョン分の jar が `build/libs/<MODバージョン>/` にまとめて出力されます。複数バージョンのビルドには [Stonecutter](https://stonecutter.kikugie.dev/) を使っています。
 
-軽さの比較方法は [docs/BENCHMARK.md](docs/BENCHMARK.md) を参照してください。
+軽さの比較方法と、他の湧き潰し表示MOD（Light Overlay / MiniHUD / Lighty）との自動ベンチマークの結果は [docs/BENCHMARK.md](docs/BENCHMARK.md) を参照してください。自動ベンチマークでは、どの場面・どのバージョンでも LightLite の追加負荷が最も小さい結果でした。ただしソフトウェア描画での相対比較なので、実機の値とは異なります。
 
 ---
 
