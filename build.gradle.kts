@@ -45,9 +45,10 @@ dependencies {
         "fabric-command-api-v2",
     )
 
-    // Other overlay mods for benchmarks: drop their jars into bench-mods/<mc version>/ (not committed)
-    if (providers.gradleProperty("lightliteBench").isPresent) {
-        "gametestRuntimeOnly"(fileTree(rootProject.file("bench-mods/${sc.current.version}")) { include("*.jar") })
+    // Other overlay mods for benchmarks: bench-mods/<mc version>/<target>/*.jar (not committed),
+    // so only the mod under test and its own dependencies are loaded
+    providers.gradleProperty("lightliteBench").orNull?.let { target ->
+        "gametestRuntimeOnly"(fileTree(rootProject.file("bench-mods/${sc.current.version}/$target")) { include("*.jar") })
     }
 
     // Client gametests run with the full Fabric API

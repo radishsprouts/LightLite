@@ -24,7 +24,7 @@ import java.util.Locale;
  * number of ticks measures "one frame + one tick" including every mod's overlay work. The camera
  * turns a full circle while measuring. Targets: {@code none}, {@code lightlite},
  * {@code lightoverlay}, {@code lighty}, {@code minihud}. Other overlay mods must be present in
- * {@code bench-mods/<minecraft version>/} for their target.
+ * {@code bench-mods/<minecraft version>/<target>/}.
  *
  * <p>This runs on software rendering, so GPU work shows up as CPU time. Treat results as a
  * relative comparison only.
@@ -75,6 +75,8 @@ public class OverlayBenchmark implements FabricClientGameTest {
                     Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE,
                     Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 0));
             writeResult(target, frames, tickTimes, markers, range);
+            // Visual proof that the overlay under test was actually on
+            context.takeScreenshot("bench-" + target + (range > 0 ? "-" + range : ""));
         }
     }
 
