@@ -1,6 +1,6 @@
 # Changelog / 変更履歴
 
-## Unreleased
+## 0.1.2 (2026-09-26)
 
 ### English
 
