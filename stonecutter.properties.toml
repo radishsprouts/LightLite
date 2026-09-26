@@ -1,7 +1,7 @@
 mod.id = "lightlite"
 mod.name = "LightLite"
 mod.group = "io.github.radishsprouts"
-mod.version = "0.1.0"
+mod.version = "0.1.1"
 
 deps.fabric_loader = "0.19.5"
 loomx.loom_version = "1.18-SNAPSHOT"

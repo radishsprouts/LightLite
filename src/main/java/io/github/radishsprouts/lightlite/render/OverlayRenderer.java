@@ -7,7 +7,6 @@ import io.github.radishsprouts.lightlite.scan.Region;
 import io.github.radishsprouts.lightlite.scan.RegionMesh;
 import io.github.radishsprouts.lightlite.util.PerfStats;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -47,12 +46,9 @@ public final class OverlayRenderer {
     }
 
     private MeshBackend createBackend(LightLiteConfig.Backend choice) {
-        boolean retained = switch (choice) {
-            case RETAINED -> true;
-            case IMMEDIATE -> false;
-            // Shader packs replace the world pipeline; stay on vanilla render types there
-            case AUTO -> !FabricLoader.getInstance().isModLoaded("iris");
-        };
+        // Both backends draw with LightLitePipelines.OVERLAY, which IrisCompat maps onto shader
+        // packs, so AUTO keeps the fast path with Iris too; a runtime failure still falls back
+        boolean retained = choice != LightLiteConfig.Backend.IMMEDIATE;
         return retained && !retainedFailed ? new RetainedBackend() : new ImmediateBackend();
     }
 

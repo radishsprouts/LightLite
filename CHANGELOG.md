@@ -4,11 +4,23 @@
 
 ### English
 
-- Fixed red markers on soul sand and mud even right next to a torch. Like vanilla, a spot now counts only if the mob's body does not collide with blocks, which also removes false markers on carpets, fences, farmland and similar blocks.
+- Fixed: red markers were shown on soul sand and mud even right next to a torch. Like vanilla, a spot now counts only if the mob's body does not collide with blocks, which also removes false markers on carpets, fences, farmland and similar blocks.
 
 ### 日本語
 
-- 松明のすぐ隣でも、ソウルサンドと泥の上に赤いマーカーが出ていた不具合を直しました。バニラと同じく、モブの体がブロックにぶつかる場所は湧く場所として扱わなくなりました。カーペット・フェンス・耕地などに出ていた誤ったマーカーも出なくなります。
+- 修正: 松明のすぐ隣でも、ソウルサンドと泥の上に赤いマーカーが出ていた。バニラと同じく、モブの体がブロックにぶつかる場所は湧く場所として扱わないようにした。カーペット・フェンス・耕地などに出ていた誤ったマーカーも出なくなる。
+
+## 0.1.1 (2026-09-26)
+
+### English
+
+- Fixed: the overlay was not shown while an Iris shader pack was active. The markers now draw with LightLite's own pipeline, which is assigned to the shader pack's basic program through the Iris API.
+- The `AUTO` renderer now uses the GPU-retained path with Iris installed too. It still falls back to the immediate path if the retained path fails.
+
+### 日本語
+
+- 修正: Iris のシェーダーパックを有効にしているとき、オーバーレイが表示されなかった。LightLite 専用のパイプラインで描くようにし、Iris の API でシェーダーパックの basic プログラムに割り当てるようにした。
+- 描画方式の `AUTO` は、Iris が入っていても GPU 保持方式を使うようにした。GPU 保持方式が失敗したときは、これまでどおり逐次描画に切り替わる。
 
 ## 0.1.0 (2026-09-26)
 

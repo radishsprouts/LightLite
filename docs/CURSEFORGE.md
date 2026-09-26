@@ -188,7 +188,7 @@ If Mod Menu is installed, the settings screen opens from the mod list. Every set
 | `verticalRange` | `16` | Vertical range up and down (4–64 blocks) |
 | `alwaysColor` / `nightColor` | `70FF2A2A` / `70FFD21E` | Colors as ARGB hex |
 | `tickBudgetMs` | `1.5` | Maximum scan time per tick |
-| `backend` | `AUTO` | `RETAINED` (kept on the GPU, fastest) / `IMMEDIATE` (most compatible) / `AUTO` (`IMMEDIATE` if Iris is installed) |
+| `backend` | `AUTO` | `RETAINED` (kept on the GPU, fastest) / `IMMEDIATE` (most compatible) / `AUTO` (`RETAINED`; falls back to `IMMEDIATE` if it fails) |
 | `gridDistance` | `16` | Within this distance (blocks), each block gets its own tile or cross; beyond it, neighbouring blocks are merged into one tile (0 always merges) |
 | `onlyWhenHoldingLight` | `false` | Show the overlay, and scan, only while holding a light-emitting block |
 | `excludedBiomes` | Mushroom Fields, Deep Dark | Biomes where hostile mobs do not spawn naturally |
@@ -199,6 +199,7 @@ If Mod Menu is installed, the settings screen opens from the mod list. Every set
 - Magma blocks are treated as floors where mobs cannot spawn, following the zombie rules.
 - The range works in sections (16 blocks).
 - Light level numbers are not shown.
+- With an Iris shader pack, the markers are drawn by the pack's basic program, the same way as MiniHUD and Light Overlay. Depending on the pack, their colors and brightness can look slightly different from those without shaders.
 
 ## Requirements
 
@@ -288,7 +289,7 @@ Mod Menu が入っていれば、MOD一覧から設定画面を開けます。�
 | `verticalRange` | `16` | 上下方向の表示範囲（4〜64ブロック） |
 | `alwaysColor` / `nightColor` | `70FF2A2A` / `70FFD21E` | ARGB の16進数 |
 | `tickBudgetMs` | `1.5` | 1ティックあたりのスキャン時間の上限 |
-| `backend` | `AUTO` | `RETAINED`（GPU保持、最速）/ `IMMEDIATE`（互換性重視）/ `AUTO`（Iris があれば `IMMEDIATE`） |
+| `backend` | `AUTO` | `RETAINED`（GPU保持、最速）/ `IMMEDIATE`（互換性重視）/ `AUTO`（`RETAINED`。失敗したら `IMMEDIATE` に切り替え） |
 | `gridDistance` | `16` | この距離（ブロック）以内は1マスずつ（タイルまたはX印）、それより遠くは隣り合うマスを1枚のタイルにまとめて描く（0で常にまとめる） |
 | `onlyWhenHoldingLight` | `false` | 光源ブロックを手に持っている時だけ表示し、スキャンもその間だけ行う |
 | `excludedBiomes` | キノコ島、ディープダーク | 敵が自然に湧かないバイオーム |
@@ -299,6 +300,7 @@ Mod Menu が入っていれば、MOD一覧から設定画面を開けます。�
 - マグマブロックはゾンビ基準では湧かない足場として扱います。
 - 表示範囲はセクション（16ブロック）単位です。
 - 明るさの数値は表示しません。
+- Iris のシェーダーパックを使っているときは、MiniHUD や Light Overlay と同じく、パックの basic プログラムでマーカーを描きます。パックによっては、シェーダーなしのときと色や明るさが少し違って見えます。
 
 ## 必要なもの
 
