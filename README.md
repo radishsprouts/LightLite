@@ -84,10 +84,6 @@ The jars for all three versions are collected in `build/libs/<mod version>/`. Bu
 
 See [docs/BENCHMARK.md](docs/BENCHMARK.md) for how to compare the cost of overlay mods and for the automated benchmark against other spawn overlay mods (Light Overlay, MiniHUD, Lighty). In the automated benchmark, LightLite added the least cost in every scenario and every version. This is a relative comparison with software rendering, so values on real hardware will differ.
 
-### Publishing
-
-The steps and listing text for publishing on CurseForge are in [docs/CURSEFORGE.md](docs/CURSEFORGE.md).
-
 ### License
 
 MIT
@@ -174,10 +170,6 @@ Mod Menu が入っていれば、MOD一覧から設定画面を開けます。�
 ### 軽さの比較
 
 軽さの比較方法と、他の湧き潰し表示MOD（Light Overlay / MiniHUD / Lighty）との自動ベンチマークの結果は [docs/BENCHMARK.md](docs/BENCHMARK.md) を参照してください。自動ベンチマークでは、どの場面・どのバージョンでも LightLite の追加負荷が最も小さい結果でした。ただしソフトウェア描画での相対比較なので、実機の値とは異なります。
-
-### 公開
-
-CurseForge への公開の手順と掲載文は [docs/CURSEFORGE.md](docs/CURSEFORGE.md) にあります。
 
 ### ライセンス
 
